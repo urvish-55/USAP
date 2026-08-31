@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  auditLogs AuditLog[]
+}
+
+model Target {
+  id          String   @id @default(cuid())
+  name        String
+  url         String
+  type        String
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastScanned DateTime?
+
+  scans       Scan[]
+  findings    Finding[]
+  credentials Credential[]
+}
+
+model Scan {
+  id               String   @id @default(cuid())
+  targetId         String
+  targetName       String
+  type             String
+  status           String   @default("queued")
+  progress         Int      @default(0)
+  startedAt        DateTime @default(now())
+  completedAt      DateTime?
+  checks           String   @default("[]")
+  findingCount     Int      @default(0)
+  highCriticalCount Int     @default(0)
+  riskScore        Float    @default(0)
+
+  target   Target    @relation(fields: [targetId], references: [id])
+  findings Finding[]
+  reports  Report[]
+
+  @@index([targetId])
+  @@index([status])
+}
+
+model Finding {
+  id             String   @id @default(cuid())
+  scanId         String
+  targetId       String
+  targetName     String
+  title          String
+  severity       String
+  cvss           Float
+  category       String
+  status         String   @default("open")
+  description    String
+  evidence       String
+  remediation    String
+  recommendation String
+  detectedAt     DateTime @default(now())
+
+  scan   Scan   @relation(fields: [scanId], references: [id])
+  target Target @relation(fields: [targetId], references: [id])
+
+  @@index([scanId])
+  @@index([targetId])
+  @@index([severity])
+}
+
+model MLDetection {
+  id          String   @id @default(cuid())
+  input       String
+  pattern     String
+  detection   String
+  status      String
+  confidence  Float
+  features    String   @default("[]")
+  explanation String
+  timestamp   DateTime @default(now())
+
+  @@index([status])
+}
+
+model Credential {
+  id                String   @id @default(cuid())
+  reference         String
+  targetId          String?
+  targetName        String?
+  username          String?
+  passwordEncrypted String
+  status            String   @default("active")
+  type              String
+  createdAt         DateTime @default(now())
+
+  target Target? @relation(fields: [targetId], references: [id])
+
+  @@index([targetId])
+}
+
+model Report {
+  id            String   @id @default(cuid())
+  title         String
+  scanIds       String   @default("[]")
+  riskScore     Float
+  totalFindings Int
+  criticalCount Int
+  highCount     Int
+  mediumCount   Int
+  lowCount      Int
+  infoCount     Int
+  status        String   @default("draft")
+  createdAt     DateTime @default(now())
+  exportedAt    DateTime?
+
+  scans Scan[]
+
+  @@index([status])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  userName  String
+  action    String
+  target    String?
+  result    String
+  module    String
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([module])
+  @@index([timestamp])
+}
+
+model PortScanResult {
+  id       String @id @default(cuid())
+  port     Int
+  protocol String
+  service  String
+  state    String
+  risk     String
+}
+
+model SubdomainResult {
+  id         String @id @default(cuid())
+  subdomain  String
+  status     String
+  ip         String
+  technology String
+}

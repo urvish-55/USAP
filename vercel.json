@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npx prisma generate && npx prisma db push --skip-generate && npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "installCommand": "npm install && cd server && npm install",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+  ]
+}
