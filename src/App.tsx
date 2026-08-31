@@ -18,9 +18,10 @@ import Settings from './pages/Settings';
 function AppContent() {
   const { currentUser, currentPage, loading, isAuthenticated, login } = useApp();
 
-  if (!isAuthenticated) {
-    return <SignIn onLogin={login} />;
-  }
+  // Skip login — go straight to the app
+  // if (!isAuthenticated) {
+  //   return <SignIn onLogin={login} />;
+  // }
 
   if (loading) {
     return (

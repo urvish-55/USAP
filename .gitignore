@@ -2,7 +2,15 @@ node_modules
 dist
 .env
 .env.local
+.env.production
+.env.vercel
 *.log
 .DS_Store
-
 .vercel
+.freebuff
+server/prisma/dev.db
+server/prisma/dev.db-journal
+screenshots/output/
+USAP_Presentation.pptx
+USAP_Presentation_New.pptx
+generate_ppt.py

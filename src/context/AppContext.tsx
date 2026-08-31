@@ -69,19 +69,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [users, setUsers] = useState<User[]>([]);
 
-  // Check for stored token on mount
+  // Auto-login: skip auth check, load data directly
   useEffect(() => {
-    const token = api.getToken();
-    if (token) {
-      api.getMe()
-        .then(user => {
-          setState(prev => ({ ...prev, currentUser: user, isAuthenticated: true }));
-          loadAllData();
-        })
-        .catch(() => {
-          api.setToken(null);
-        });
-    }
+    const fakeUser = { id: 'u1', name: 'Urvish', email: 'urvish', role: 'admin' as const };
+    setState(prev => ({ ...prev, currentUser: fakeUser, isAuthenticated: true }));
+    loadAllData();
   }, []);
 
   const loadAllData = useCallback(async () => {
